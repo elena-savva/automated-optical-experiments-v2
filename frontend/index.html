@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experimental Control Interface</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .devices {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .device {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .device-status {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ccc;
+            margin-right: 8px;
+        }
+        .connected {
+            background-color: #4CAF50;
+        }
+        .disconnected {
+            background-color: #F44336;
+        }
+        .unknown {
+            background-color: #9E9E9E;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #388E3C;
+        }
+        button:disabled {
+            background-color: #9E9E9E;
+            cursor: not-allowed;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 5px;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .notification {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #dff0d8;
+            border: 1px solid #d6e9c6;
+            color: #3c763d;
+            display: block;
+        }
+        .error {
+            background-color: #f2dede;
+            border: 1px solid #ebccd1;
+            color: #a94442;
+            display: block;
+        }
+        .run-button {
+            background-color: #2196F3;
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .run-button:hover {
+            background-color: #0b7dda;
+        }
+        .validation-message {
+            color: #F44336;
+            font-size: 0.8em;
+            margin-top: 4px;
+            min-height: 1em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laboratory Experiment Control</h1>
+    
+    <div class="container">
+        <h2>Device Status</h2>
+        <div class="devices">
+            <div class="device" id="cld1015-device">
+                <div class="device-header">
+                    <h3><span class="device-status unknown"></span> CLD1015 Laser Diode</h3>
+                    <button onclick="checkDeviceConnection('cld1015')">Check Connection</button>
+                </div>
+                <div id="cld1015-info"></div>
+            </div>
+            
+            <div class="device" id="n77-device">
+                <div class="device-header">
+                    <h3><span class="device-status unknown"></span> N7714A Tunable Laser</h3>
+                    <button onclick="checkDeviceConnection('n77')">Check Connection</button>
+                </div>
+                <div id="n77-info"></div>
+            </div>
+            
+            <div class="device" id="power-meter-device">
+                <div class="device-header">
+                    <h3><span class="device-status unknown"></span> MPM210-H Power Meter</h3>
+                    <button onclick="checkDeviceConnection('power_meter')">Check Connection</button>
+                </div>
+                <div id="power-meter-info"></div>
+            </div>
+            
+            <div class="device" id="osa-device">
+                <div class="device-header">
+                    <h3><span class="device-status unknown"></span> HP-70952B OSA</h3>
+                    <button onclick="checkDeviceConnection('osa')">Check Connection</button>
+                </div>
+                <div id="osa-info"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>Run Experiment</h2>
+        <div id="notification" class="notification"></div>
+
+        <div class="form-group">
+            <label for="experiment-select">Select Experiment:</label>
+            <select id="experiment-select" onchange="updateParameterForm()">
+                <option value="">-- Select an experiment --</option>
+                <option value="current_sweep">Current Sweep (CLD1015 + OSA)</option>
+                <option value="wavelength_check">Wavelength Check (N77 + Power Meter)</option>
+                <option value="wavelength_sweep">Wavelength Sweep (N77 + Power Meter)</option>
+                <option value="wavelength_sweep_osa">Wavelength Sweep with OSA (N77 + OSA)</option>
+            </select>
+        </div>
+        
+        <div id="parameter-form" style="display: none; margin-top: 20px;">
+            <!-- Current Sweep Parameters -->
+            <div id="current-sweep-params" style="display: none;">
+                <h3>Current Sweep Parameters</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="start-ma">Start Current (mA):</label>
+                        <input type="number" id="start-ma" min="0" max="100" step="0.1" value="0" oninput="validateParameters()">
+                        <div class="validation-message" id="start-ma-validation"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="stop-ma">Stop Current (mA):</label>
+                        <input type="number" id="stop-ma" min="0" max="100" step="0.1" value="100" oninput="validateParameters()">
+                        <div class="validation-message" id="stop-ma-validation"></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="step-ma">Step Size (mA):</label>
+                        <input type="number" id="step-ma" min="0.1" step="0.1" value="1" oninput="validateParameters()">
+                        <div class="validation-message" id="step-ma-validation"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="dwell-time-ms">Dwell Time (ms):</label>
+                        <input type="number" id="dwell-time-ms" min="50" step="10" value="100">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Wavelength Check Parameters -->
+            <div id="wavelength-check-params" style="display: none;">
+                <h3>Wavelength Check Parameters</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="wavelength">Wavelength (nm):</label>
+                        <input type="number" id="wavelength" min="1527.60" max="1570.01" step="0.01" value="1550.00" oninput="validateParameters()">
+                        <div class="validation-message" id="wavelength-validation"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="stabilization-time-ms-check">Stabilization Time (ms):</label>
+                        <input type="number" id="stabilization-time-ms-check" min="100" step="100" value="10000">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Wavelength Sweep Parameters -->
+            <div id="wavelength-sweep-params" style="display: none;">
+                <h3>Wavelength Sweep Parameters</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="start-nm">Start Wavelength (nm):</label>
+                        <input type="number" id="start-nm" min="1527.60" max="1570.01" step="0.01" value="1530.00" oninput="validateParameters()">
+                        <div class="validation-message" id="start-nm-validation"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="stop-nm">Stop Wavelength (nm):</label>
+                        <input type="number" id="stop-nm" min="1527.60" max="1570.01" step="0.01" value="1570.00" oninput="validateParameters()">
+                        <div class="validation-message" id="stop-nm-validation"></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="step-nm">Step Size (nm):</label>
+                        <input type="number" id="step-nm" min="0.01" step="0.01" value="5.00" oninput="validateParameters()">
+                        <div class="validation-message" id="step-nm-validation"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="stabilization-time-ms-sweep">Stabilization Time (ms):</label>
+                        <input type="number" id="stabilization-time-ms-sweep" min="100" step="100" value="10000">
+                    </div>
+                </div>
+                <div class="validation-message" id="number-of-points-validation"></div>
+            </div>
+            
+            <!-- Wavelength Sweep OSA Parameters -->
+            <div id="wavelength-sweep-osa-params" style="display: none;">
+                <h3>Wavelength Sweep with OSA Parameters</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="start-nm-osa">Start Wavelength (nm):</label>
+                        <input type="number" id="start-nm-osa" min="1527.60" max="1570.01" step="0.01" value="1530.00" oninput="validateParameters()">
+                        <div class="validation-message" id="start-nm-osa-validation"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="stop-nm-osa">Stop Wavelength (nm):</label>
+                        <input type="number" id="stop-nm-osa" min="1527.60" max="1570.01" step="0.01" value="1570.00" oninput="validateParameters()">
+                        <div class="validation-message" id="stop-nm-osa-validation"></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="step-nm-osa">Step Size (nm):</label>
+                        <input type="number" id="step-nm-osa" min="0.01" step="0.01" value="5.00" oninput="validateParameters()">
+                        <div class="validation-message" id="step-nm-osa-validation"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="stabilization-time-ms-osa">Stabilization Time (ms):</label>
+                        <input type="number" id="stabilization-time-ms-osa" min="100" step="100" value="10000">
+                    </div>
+                </div>
+                <div class="validation-message" id="number-of-points-osa-validation"></div>
+            </div>
+            
+            <button id="run-experiment" class="run-button" disabled onclick="runExperiment()">Run Experiment</button>
+        </div>
+    </div>
+
+    <script>
+        // Device connection status
+        const deviceStatus = {
+            cld1015: 'unknown',
+            n77: 'unknown',
+            power_meter: 'unknown',
+            osa: 'unknown'
+        };
+
+        // API URL (adjust as needed for your deployment)
+        const API_URL = 'http://localhost:3000';
+
+        // Check device connection
+        async function checkDeviceConnection(device) {
+            const button = document.querySelector(`#${device}-device button`);
+            const statusIndicator = document.querySelector(`#${device}-device .device-status`);
+            const infoElement = document.getElementById(`${device}-info`);
+            
+            button.disabled = true;
+            button.textContent = 'Checking...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/check-connection/${device}`);
+                const data = await response.json();
+                
+                if (data.connected) {
+                    statusIndicator.className = 'device-status connected';
+                    deviceStatus[device] = 'connected';
+                    infoElement.textContent = data.info || '';
+                } else {
+                    statusIndicator.className = 'device-status disconnected';
+                    deviceStatus[device] = 'disconnected';
+                    infoElement.textContent = data.error || 'Failed to connect';
+                }
+            } catch (error) {
+                statusIndicator.className = 'device-status disconnected';
+                deviceStatus[device] = 'disconnected';
+                infoElement.textContent = `Error: ${error.message}`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Check Connection';
+                updateRunButtonState();
+            }
+        }
+
+        // Update parameter form based on selected experiment
+        function updateParameterForm() {
+            const experiment = document.getElementById('experiment-select').value;
+            const parameterForm = document.getElementById('parameter-form');
+            
+            // Hide all parameter forms
+            document.getElementById('current-sweep-params').style.display = 'none';
+            document.getElementById('wavelength-check-params').style.display = 'none';
+            document.getElementById('wavelength-sweep-params').style.display = 'none';
+            document.getElementById('wavelength-sweep-osa-params').style.display = 'none';
+            
+            if (experiment) {
+                parameterForm.style.display = 'block';
+                
+                // Show the appropriate parameter form
+                switch (experiment) {
+                    case 'current_sweep':
+                        document.getElementById('current-sweep-params').style.display = 'block';
+                        break;
+                    case 'wavelength_check':
+                        document.getElementById('wavelength-check-params').style.display = 'block';
+                        break;
+                    case 'wavelength_sweep':
+                        document.getElementById('wavelength-sweep-params').style.display = 'block';
+                        break;
+                    case 'wavelength_sweep_osa':
+                        document.getElementById('wavelength-sweep-osa-params').style.display = 'block';
+                        break;
+                }
+
+                validateParameters();
+            } else {
+                parameterForm.style.display = 'none';
+            }
+        }
+
+        // Validate parameters
+        function validateParameters() {
+            const experiment = document.getElementById('experiment-select').value;
+            let valid = true;
+            
+            // Reset all validation messages
+            document.querySelectorAll('.validation-message').forEach(elem => {
+                elem.textContent = '';
+            });
+            
+            switch (experiment) {
+                case 'current_sweep':
+                    // Validate current sweep parameters
+                    const startMa = parseFloat(document.getElementById('start-ma').value);
+                    const stopMa = parseFloat(document.getElementById('stop-ma').value);
+                    const stepMa = parseFloat(document.getElementById('step-ma').value);
+                    
+                    if (startMa < 0 || startMa > 100) {
+                        document.getElementById('start-ma-validation').textContent = 'Start current must be between 0 and 100 mA';
+                        valid = false;
+                    }
+                    
+                    if (stopMa < 0 || stopMa > 100) {
+                        document.getElementById('stop-ma-validation').textContent = 'Stop current must be between 0 and 100 mA';
+                        valid = false;
+                    }
+                    
+                    if (stopMa <= startMa) {
+                        document.getElementById('stop-ma-validation').textContent = 'Stop current must be greater than start current';
+                        valid = false;
+                    }
+                    
+                    if (stepMa <= 0) {
+                        document.getElementById('step-ma-validation').textContent = 'Step size must be greater than 0';
+                        valid = false;
+                    }
+                    break;
+                    
+                case 'wavelength_check':
+                    // Validate wavelength check parameters
+                    const wavelength = parseFloat(document.getElementById('wavelength').value);
+                    
+                    if (wavelength < 1527.60 || wavelength > 1570.01) {
+                        document.getElementById('wavelength-validation').textContent = 'Wavelength must be between 1527.60 and 1570.01 nm';
+                        valid = false;
+                    }
+                    break;
+                    
+                case 'wavelength_sweep':
+                    // Validate wavelength sweep parameters
+                    valid = validateWavelengthSweepParams('start-nm', 'stop-nm', 'step-nm', 'number-of-points-validation');
+                    break;
+                    
+                case 'wavelength_sweep_osa':
+                    // Validate wavelength sweep OSA parameters
+                    valid = validateWavelengthSweepParams('start-nm-osa', 'stop-nm-osa', 'step-nm-osa', 'number-of-points-osa-validation');
+                    break;
+            }
+            
+            // Update run button state
+            updateRunButtonState(valid);
+            return valid;
+        }
+
+        // Helper function to validate wavelength sweep parameters
+        function validateWavelengthSweepParams(startId, stopId, stepId, validationId) {
+            let valid = true;
+            const startNm = parseFloat(document.getElementById(startId).value);
+            const stopNm = parseFloat(document.getElementById(stopId).value);
+            const stepNm = parseFloat(document.getElementById(stepId).value);
+            
+            if (startNm < 1527.60 || startNm > 1570.01) {
+                document.getElementById(`${startId}-validation`).textContent = 'Start wavelength must be between 1527.60 and 1570.01 nm';
+                valid = false;
+            }
+            
+            if (stopNm < 1527.60 || stopNm > 1570.01) {
+                document.getElementById(`${stopId}-validation`).textContent = 'Stop wavelength must be between 1527.60 and 1570.01 nm';
+                valid = false;
+            }
+            
+            if (stopNm <= startNm) {
+                document.getElementById(`${stopId}-validation`).textContent = 'Stop wavelength must be greater than start wavelength';
+                valid = false;
+            }
+            
+            if (stepNm <= 0) {
+                document.getElementById(`${stepId}-validation`).textContent = 'Step size must be greater than 0';
+                valid = false;
+            }
+            
+            // Calculate number of points
+            const numPoints = Math.floor((stopNm - startNm) / stepNm) + 1;
+            
+            if (numPoints > 9) {
+                document.getElementById(validationId).textContent = `Too many data points (${numPoints}). Maximum allowed is 9. Please adjust parameters.`;
+                valid = false;
+            } else if (numPoints < 2) {
+                document.getElementById(validationId).textContent = `Too few data points (${numPoints}). Minimum required is 2. Please adjust parameters.`;
+                valid = false;
+            } else {
+                document.getElementById(validationId).textContent = `Number of data points: ${numPoints}`;
+            }
+            
+            return valid;
+        }
+
+        // Update run button state
+        function updateRunButtonState(parametersValid = true) {
+            const runButton = document.getElementById('run-experiment');
+            const experiment = document.getElementById('experiment-select').value;
+            
+            if (!experiment) {
+                runButton.disabled = true;
+                return;
+            }
+            
+            let requiredDevices = [];
+            switch (experiment) {
+                case 'current_sweep':
+                    requiredDevices = ['cld1015', 'osa'];
+                    break;
+                case 'wavelength_check':
+                    requiredDevices = ['n77', 'power_meter'];
+                    break;
+                case 'wavelength_sweep':
+                    requiredDevices = ['n77', 'power_meter'];
+                    break;
+                case 'wavelength_sweep_osa':
+                    requiredDevices = ['n77', 'osa'];
+                    break;
+            }
+            
+            const devicesConnected = requiredDevices.every(device => deviceStatus[device] === 'connected');
+            runButton.disabled = !devicesConnected || !parametersValid;
+            
+            if (!devicesConnected) {
+                const missingDevices = requiredDevices.filter(device => deviceStatus[device] !== 'connected');
+                document.getElementById('notification').className = 'notification error';
+                document.getElementById('notification').textContent = `The following devices need to be connected: ${missingDevices.join(', ')}`;
+                document.getElementById('notification').style.display = 'block';
+            } else if (!parametersValid) {
+                document.getElementById('notification').className = 'notification error';
+                document.getElementById('notification').textContent = 'Please fix the validation errors before running the experiment.';
+                document.getElementById('notification').style.display = 'block';
+            } else {
+                document.getElementById('notification').style.display = 'none';
+            }
+        }
+
+        // Run the experiment
+        async function runExperiment() {
+            if (!validateParameters()) {
+                return;
+            }
+            
+            const experiment = document.getElementById('experiment-select').value;
+            const runButton = document.getElementById('run-experiment');
+            
+            runButton.disabled = true;
+            runButton.textContent = 'Running Experiment...';
+            
+            document.getElementById('notification').className = 'notification';
+            document.getElementById('notification').textContent = 'Running experiment, please wait...';
+            document.getElementById('notification').style.display = 'block';
+            
+            let params = {};
+            
+            switch (experiment) {
+                case 'current_sweep':
+                    params = {
+                        start_ma: parseFloat(document.getElementById('start-ma').value),
+                        stop_ma: parseFloat(document.getElementById('stop-ma').value),
+                        step_ma: parseFloat(document.getElementById('step-ma').value),
+                        dwell_time_ms: parseInt(document.getElementById('dwell-time-ms').value)
+                    };
+                    break;
+                    
+                case 'wavelength_check':
+                    params = {
+                        wavelength: parseFloat(document.getElementById('wavelength').value),
+                        stabilization_time_ms: parseInt(document.getElementById('stabilization-time-ms-check').value)
+                    };
+                    break;
+                    
+                case 'wavelength_sweep':
+                    params = {
+                        start_nm: parseFloat(document.getElementById('start-nm').value),
+                        stop_nm: parseFloat(document.getElementById('stop-nm').value),
+                        step_nm: parseFloat(document.getElementById('step-nm').value),
+                        stabilization_time_ms: parseInt(document.getElementById('stabilization-time-ms-sweep').value)
+                    };
+                    break;
+                    
+                case 'wavelength_sweep_osa':
+                    params = {
+                        start_nm: parseFloat(document.getElementById('start-nm-osa').value),
+                        stop_nm: parseFloat(document.getElementById('stop-nm-osa').value),
+                        step_nm: parseFloat(document.getElementById('step-nm-osa').value),
+                        stabilization_time_ms: parseInt(document.getElementById('stabilization-time-ms-osa').value)
+                    };
+                    break;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/api/run-experiment/${experiment}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(params)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('notification').className = 'notification success';
+                    document.getElementById('notification').textContent = `Experiment completed successfully! Results saved to: ${data.result_path}`;
+                } else {
+                    document.getElementById('notification').className = 'notification error';
+                    document.getElementById('notification').textContent = `Error: ${data.error}`;
+                }
+            } catch (error) {
+                document.getElementById('notification').className = 'notification error';
+                document.getElementById('notification').textContent = `Error: ${error.message}`;
+            } finally {
+                runButton.disabled = false;
+                runButton.textContent = 'Run Experiment';
+                updateRunButtonState();
+            }
+        }
+    </script>
+</body>
+</html>

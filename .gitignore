@@ -1,0 +1,6 @@
+/target
+/trace_data
+/wavelength_check_result.csv
+/wavelength_sweep_results.csv
+/wavelength_sweep_trace_results.csv
+/current_sweep_results.csv
