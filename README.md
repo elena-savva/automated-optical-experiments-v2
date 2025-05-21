@@ -25,19 +25,13 @@ This application provides a web-based interface for controlling laboratory exper
    - For Windows: NI-VISA or similar
    - For Linux: Check out the visa-rs crate documentation
 
-3. Create a `frontend` directory in the project root and place the HTML file there:
-   ```
-   mkdir -p frontend
-   # Copy the HTML file to frontend/index.html
-   ```
-
-4. Build and run the application:
+3. Build and run the application:
    ```
    cargo build --release
    cargo run --release
    ```
 
-5. Open the web interface in your browser:
+4. Open the web interface in your browser:
    ```
    http://localhost:3000
    ```
