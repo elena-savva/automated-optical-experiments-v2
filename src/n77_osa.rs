@@ -20,7 +20,7 @@ pub fn run_wavelength_sweep_osa(
     writeln!(file, "Laser Wavelength (nm),Peak Wavelength (nm),Peak Power (dBm)").map_err(io_to_vs_err)?;
     
     // Create a directory to store trace data files
-    let trace_dir = "trace_data";
+    let trace_dir = "wavelength_sweep_trace_data";
     create_dir_all(trace_dir).unwrap_or_else(|e| {
         println!("Warning: Failed to create trace data directory: {}", e);
     });
@@ -140,10 +140,10 @@ pub fn run_wavelength_sweep_osa(
         osa.write_all(b"TRA?;\n").map_err(io_to_vs_err)?;
         
         // Read trace data
-        let mut trace_data = String::new();
+        let mut wavelength_sweep_trace_data = String::new();
         {
             let mut reader = BufReader::new(&*osa);
-            reader.read_line(&mut trace_data).map_err(io_to_vs_err)?;
+            reader.read_line(&mut wavelength_sweep_trace_data).map_err(io_to_vs_err)?;
         }
         
         // Calculate wavelength array for the x-axis
@@ -160,7 +160,7 @@ pub fn run_wavelength_sweep_osa(
         writeln!(trace_file, "Wavelength (nm),Power (dBm)").unwrap();
         
         // Parse and write trace data
-        let values: Vec<&str> = trace_data.trim().split(',').collect();
+        let values: Vec<&str> = wavelength_sweep_trace_data.trim().split(',').collect();
         for (j, value) in values.iter().enumerate() {
             if j < num_trace_points {
                 let wavelength = start_wl + (j as f64 * wavelength_step);

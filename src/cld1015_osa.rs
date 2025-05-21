@@ -20,7 +20,7 @@ pub fn run_current_sweep(
     writeln!(file, "Current (mA),Peak Wavelength (nm),Peak Power (dBm)").unwrap();
     
     // Create a directory to store trace data files
-    let trace_dir = "trace_data";
+    let trace_dir = "current_sweep_trace_data";
     create_dir_all(trace_dir).unwrap_or_else(|e| {
         println!("Warning: Failed to create trace data directory: {}", e);
     });
@@ -129,10 +129,10 @@ pub fn run_current_sweep(
         osa.write_all(b"TRA?;\n").map_err(io_to_vs_err)?;
         
         // Read trace data
-        let mut trace_data = String::new();
+        let mut current_sweep_trace_data = String::new();
         {
             let mut reader = BufReader::new(&*osa);
-            reader.read_line(&mut trace_data).map_err(io_to_vs_err)?;
+            reader.read_line(&mut current_sweep_trace_data).map_err(io_to_vs_err)?;
         }
         
         // Calculate wavelength array for the x-axis
@@ -149,7 +149,7 @@ pub fn run_current_sweep(
         writeln!(trace_file, "Wavelength (nm),Power (dBm)").unwrap();
         
         // Parse and write trace data
-        let values: Vec<&str> = trace_data.trim().split(',').collect();
+        let values: Vec<&str> = current_sweep_trace_data.trim().split(',').collect();
         for (j, value) in values.iter().enumerate() {
             if j < num_trace_points {
                 let wavelength = start_wl + (j as f64 * wavelength_step);

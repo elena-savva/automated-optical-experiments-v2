@@ -232,7 +232,7 @@
                     </div>
                     <div class="form-group">
                         <label for="stabilization-time-ms-check">Stabilization Time (ms):</label>
-                        <input type="number" id="stabilization-time-ms-check" min="100" step="100" value="10000">
+                        <input type="number" id="stabilization-time-ms-check" min="100" step="100" value="200">
                     </div>
                 </div>
             </div>
@@ -313,9 +313,12 @@
 
         // Check device connection
         async function checkDeviceConnection(device) {
-            const button = document.querySelector(`#${device}-device button`);
-            const statusIndicator = document.querySelector(`#${device}-device .device-status`);
-            const infoElement = document.getElementById(`${device}-info`);
+            // Convert underscore to hyphen for element IDs
+            const deviceId = device.replace('_', '-');
+    
+            const button = document.querySelector(`#${deviceId}-device button`);
+            const statusIndicator = document.querySelector(`#${deviceId}-device .device-status`);
+            const infoElement = document.getElementById(`${deviceId}-info`);
             
             button.disabled = true;
             button.textContent = 'Checking...';

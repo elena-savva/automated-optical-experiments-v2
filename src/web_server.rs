@@ -235,11 +235,6 @@ fn check_power_meter(state: &mut AppState) -> std::result::Result<String, String
     // Get the device
     let device = state.devices.power_meter.as_mut().unwrap();
     
-    // Clear any errors
-    if let Err(err) = device.write_all(b"*CLS\n") {
-        return Err(format!("Failed to clear Power Meter: {}", err));
-    }
-    
     // Query device identity
     if let Err(err) = device.write_all(b"*IDN?\n") {
         return Err(format!("Failed to query Power Meter: {}", err));
@@ -316,7 +311,10 @@ async fn check_connection_handler(
     device: String,
     state: Arc<Mutex<AppState>>,
 ) -> std::result::Result<impl Reply, Rejection> {
-    let mut state_guard = state.lock().unwrap();
+    let mut state_guard = match state.lock() {
+        Ok(guard) => guard,
+        Err(poisoned) => poisoned.into_inner(), // Recover from poison
+    };
     
     let result = match device.as_str() {
         "cld1015" => check_cld1015(&mut state_guard),
@@ -488,7 +486,10 @@ async fn run_experiment_handler(
     };
     
     // Run the experiment
-    let mut state_guard = state.lock().unwrap();
+    let mut state_guard = match state.lock() {
+        Ok(guard) => guard,
+        Err(poisoned) => poisoned.into_inner(), // Recover from poison
+    };
     
     let result = match experiment.as_str() {
         "current_sweep" => {
