@@ -2,6 +2,49 @@
 
 This application provides a web-based interface for controlling laboratory experiments with multiple instruments.
 
+## Quick Start for Lab Users
+
+**Just want to control your lab equipment? No coding required!**
+
+### [📥 Download Latest Release](https://github.com/yourusername/automating_experiments/releases/latest)
+
+1. Download `lab-control-system-v1.0.0-windows.zip` 
+2. Extract to any folder
+3. Run `run_lab_control.bat`
+4. Open http://localhost:3000 in your browser
+5. Start experimenting! 🔬
+
+
+## For Lab Users (Non-Developers)
+
+If you just want to run the lab equipment, **download the pre-built release** from the [Releases page](https://github.com/elena-savva/automated-optical-experiments-v2/releases) instead of building from source.
+
+## For Developers
+
+### Prerequisites
+- Rust and Cargo installed
+- VISA drivers for your operating system
+- Laboratory instruments (CLD1015, N7714A, MPM210-H, HP-70952B)
+
+### Building and Running
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/elena-savva/automated-optical-experiments-v2.git
+   cd automating_experiments
+   ```
+
+3. Build and run the application:
+   ```
+   cargo build
+   cargo run
+   ```
+
+4. Open the web interface in your browser:
+   ```
+   http://localhost:3000
+   ```
+   
 ## Features
 
 - Connect to and monitor 4 laboratory devices:
@@ -16,25 +59,6 @@ This application provides a web-based interface for controlling laboratory exper
   - Wavelength Sweep with OSA (N77 + OSA)
 - Set experiment parameters with validation
 - View experiment results in CSV files
-
-## Setup Instructions
-
-1. Install Rust and Cargo (if not already installed): https://www.rust-lang.org/tools/install
-
-2. Make sure you have the appropriate VISA libraries installed for your operating system:
-   - For Windows: NI-VISA or similar
-   - For Linux: Check out the visa-rs crate documentation
-
-3. Build and run the application:
-   ```
-   cargo build --release
-   cargo run --release
-   ```
-
-4. Open the web interface in your browser:
-   ```
-   http://localhost:3000
-   ```
 
 ## Using the Application
 
