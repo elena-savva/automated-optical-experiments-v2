@@ -44,6 +44,18 @@
             align-items: center;
             margin-bottom: 10px;
         }
+        .device-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .device-icon {
+            max-width: 100px;
+            max-height: 100px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
         .device-status {
             display: inline-block;
             width: 12px;
@@ -145,7 +157,10 @@
         <div class="devices">
             <div class="device" id="cld1015-device">
                 <div class="device-header">
-                    <h3><span class="device-status unknown"></span> CLD1015 Laser Diode</h3>
+                    <div class="device-title">
+                        <img src="icons/cld1015.png" alt="CLD1015 Icon" class="device-icon">
+                        <h3><span class="device-status unknown"></span> CLD1015 Laser Diode</h3>
+                    </div>
                     <button onclick="checkDeviceConnection('cld1015')">Check Connection</button>
                 </div>
                 <div id="cld1015-info"></div>
@@ -153,7 +168,10 @@
             
             <div class="device" id="n77-device">
                 <div class="device-header">
-                    <h3><span class="device-status unknown"></span> N7714A Tunable Laser</h3>
+                    <div class="device-title">
+                        <img src="icons/N7714A.png" alt="N77 Icon" class="device-icon">
+                        <h3><span class="device-status unknown"></span> N7714A Tunable Laser</h3>
+                    </div>
                     <button onclick="checkDeviceConnection('n77')">Check Connection</button>
                 </div>
                 <div id="n77-info"></div>
@@ -161,7 +179,10 @@
             
             <div class="device" id="power-meter-device">
                 <div class="device-header">
-                    <h3><span class="device-status unknown"></span> MPM210-H Power Meter</h3>
+                    <div class="device-title">
+                        <img src="icons/MPM-210H.png" alt="Power Meter Icon" class="device-icon">
+                        <h3><span class="device-status unknown"></span> MPM210-H Power Meter</h3>
+                    </div>
                     <button onclick="checkDeviceConnection('power_meter')">Check Connection</button>
                 </div>
                 <div id="power-meter-info"></div>
@@ -169,7 +190,10 @@
             
             <div class="device" id="osa-device">
                 <div class="device-header">
-                    <h3><span class="device-status unknown"></span> HP-70952B OSA</h3>
+                    <div class="device-title">
+                        <img src="icons/hp.png" alt="OSA Icon" class="device-icon">
+                        <h3><span class="device-status unknown"></span> HP-70952B OSA</h3>
+                    </div>
                     <button onclick="checkDeviceConnection('osa')">Check Connection</button>
                 </div>
                 <div id="osa-info"></div>
@@ -207,17 +231,11 @@
                         <input type="number" id="stop-ma" min="0" max="100" step="0.1" value="100" oninput="validateParameters()">
                         <div class="validation-message" id="stop-ma-validation"></div>
                     </div>
-                </div>
-                <div class="form-row">
                     <div class="form-group">
                         <label for="step-ma">Step Size (mA):</label>
                         <input type="number" id="step-ma" min="0.1" step="0.1" value="1" oninput="validateParameters()">
                         <div class="validation-message" id="step-ma-validation"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="dwell-time-ms">Dwell Time (ms):</label>
-                        <input type="number" id="dwell-time-ms" min="50" step="10" value="100">
-                    </div>
+                    </div>                    
                 </div>
             </div>
             
@@ -229,10 +247,6 @@
                         <label for="wavelength">Wavelength (nm):</label>
                         <input type="number" id="wavelength" min="1527.60" max="1570.01" step="0.01" value="1550.00" oninput="validateParameters()">
                         <div class="validation-message" id="wavelength-validation"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="stabilization-time-ms-check">Stabilization Time (ms):</label>
-                        <input type="number" id="stabilization-time-ms-check" min="100" step="100" value="200">
                     </div>
                 </div>
             </div>
@@ -251,16 +265,10 @@
                         <input type="number" id="stop-nm" min="1527.60" max="1570.01" step="0.01" value="1570.00" oninput="validateParameters()">
                         <div class="validation-message" id="stop-nm-validation"></div>
                     </div>
-                </div>
-                <div class="form-row">
                     <div class="form-group">
                         <label for="step-nm">Step Size (nm):</label>
                         <input type="number" id="step-nm" min="0.01" step="0.01" value="5.00" oninput="validateParameters()">
                         <div class="validation-message" id="step-nm-validation"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="stabilization-time-ms-sweep">Stabilization Time (ms):</label>
-                        <input type="number" id="stabilization-time-ms-sweep" min="100" step="100" value="10000">
                     </div>
                 </div>
                 <div class="validation-message" id="number-of-points-validation"></div>
@@ -280,21 +288,14 @@
                         <input type="number" id="stop-nm-osa" min="1527.60" max="1570.01" step="0.01" value="1570.00" oninput="validateParameters()">
                         <div class="validation-message" id="stop-nm-osa-validation"></div>
                     </div>
-                </div>
-                <div class="form-row">
                     <div class="form-group">
                         <label for="step-nm-osa">Step Size (nm):</label>
                         <input type="number" id="step-nm-osa" min="0.01" step="0.01" value="5.00" oninput="validateParameters()">
                         <div class="validation-message" id="step-nm-osa-validation"></div>
                     </div>
-                    <div class="form-group">
-                        <label for="stabilization-time-ms-osa">Stabilization Time (ms):</label>
-                        <input type="number" id="stabilization-time-ms-osa" min="100" step="100" value="10000">
-                    </div>
                 </div>
                 <div class="validation-message" id="number-of-points-osa-validation"></div>
             </div>
-            
             <button id="run-experiment" class="run-button" disabled onclick="runExperiment()">Run Experiment</button>
         </div>
     </div>
@@ -415,8 +416,8 @@
                         valid = false;
                     }
                     
-                    if (stepMa <= 0) {
-                        document.getElementById('step-ma-validation').textContent = 'Step size must be greater than 0';
+                    if (stepMa < 0.1) {
+                        document.getElementById('step-ma-validation').textContent = 'Step size must be at least 0.1 mA';
                         valid = false;
                     }
                     break;
@@ -557,14 +558,12 @@
                         start_ma: parseFloat(document.getElementById('start-ma').value),
                         stop_ma: parseFloat(document.getElementById('stop-ma').value),
                         step_ma: parseFloat(document.getElementById('step-ma').value),
-                        dwell_time_ms: parseInt(document.getElementById('dwell-time-ms').value)
                     };
                     break;
                     
                 case 'wavelength_check':
                     params = {
                         wavelength: parseFloat(document.getElementById('wavelength').value),
-                        stabilization_time_ms: parseInt(document.getElementById('stabilization-time-ms-check').value)
                     };
                     break;
                     
@@ -573,7 +572,6 @@
                         start_nm: parseFloat(document.getElementById('start-nm').value),
                         stop_nm: parseFloat(document.getElementById('stop-nm').value),
                         step_nm: parseFloat(document.getElementById('step-nm').value),
-                        stabilization_time_ms: parseInt(document.getElementById('stabilization-time-ms-sweep').value)
                     };
                     break;
                     
@@ -582,7 +580,6 @@
                         start_nm: parseFloat(document.getElementById('start-nm-osa').value),
                         stop_nm: parseFloat(document.getElementById('stop-nm-osa').value),
                         step_nm: parseFloat(document.getElementById('step-nm-osa').value),
-                        stabilization_time_ms: parseInt(document.getElementById('stabilization-time-ms-osa').value)
                     };
                     break;
             }

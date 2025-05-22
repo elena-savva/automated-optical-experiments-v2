@@ -16,6 +16,11 @@ use crate::n77_wavelength_sweep;
 use crate::n77_osa;
 use crate::visa_error::io_to_vs_err;
 
+// Pre-set timing values
+const DEFAULT_DWELL_TIME_MS: u64 = 100;        // For current sweep
+const DEFAULT_STABILIZATION_TIME_MS: u64 = 200; // For wavelength check
+const DEFAULT_WAVELENGTH_SWEEP_STABILIZATION_MS: u64 = 10000; // For wavelength sweeps
+
 // Configure CORS to allow all origins
 fn with_cors() -> warp::cors::Builder {
     warp::cors()
@@ -78,13 +83,13 @@ struct CurrentSweepParams {
     start_ma: f64,
     stop_ma: f64,
     step_ma: f64,
-    dwell_time_ms: u64,
+    // dwell_time_ms removed - will use pre-set value
 }
 
 #[derive(Deserialize)]
 struct WavelengthCheckParams {
     wavelength: f64,
-    stabilization_time_ms: u64,
+    // stabilization_time_ms removed - will use pre-set value
 }
 
 #[derive(Deserialize)]
@@ -92,7 +97,7 @@ struct WavelengthSweepParams {
     start_nm: f64,
     stop_nm: f64,
     step_nm: f64,
-    stabilization_time_ms: u64,
+    // stabilization_time_ms removed - will use pre-set value
 }
 
 // Filter to inject state
@@ -355,7 +360,7 @@ fn run_current_sweep(
         return Err("Invalid current sweep parameters".to_string());
     }
     
-    // Run experiment
+    // Run experiment with pre-set dwell time
     let cld1015 = state.devices.cld1015.as_mut().unwrap();
     let osa = state.devices.osa.as_mut().unwrap();
     
@@ -365,7 +370,7 @@ fn run_current_sweep(
         params.start_ma,
         params.stop_ma,
         params.step_ma,
-        params.dwell_time_ms,
+        DEFAULT_DWELL_TIME_MS, // Use pre-set value
     ).map_err(|e| format!("Experiment failed: {}", e))
 }
 
@@ -383,7 +388,7 @@ fn run_wavelength_check(
         return Err("Invalid wavelength check parameters".to_string());
     }
     
-    // Run experiment
+    // Run experiment with pre-set stabilization time
     let n77 = state.devices.n77.as_mut().unwrap();
     let power_meter = state.devices.power_meter.as_mut().unwrap();
     
@@ -391,7 +396,7 @@ fn run_wavelength_check(
         n77,
         power_meter,
         params.wavelength,
-        params.stabilization_time_ms,
+        DEFAULT_STABILIZATION_TIME_MS, // Use pre-set value
     ).map_err(|e| format!("Experiment failed: {}", e))
 }
 
@@ -417,7 +422,7 @@ fn run_wavelength_sweep(
         return Err(format!("Too many data points: {}. Maximum allowed is 9.", num_points));
     }
     
-    // Run experiment
+    // Run experiment with pre-set stabilization time
     let n77 = state.devices.n77.as_mut().unwrap();
     let power_meter = state.devices.power_meter.as_mut().unwrap();
     
@@ -427,7 +432,7 @@ fn run_wavelength_sweep(
         params.start_nm,
         params.stop_nm,
         params.step_nm,
-        params.stabilization_time_ms,
+        DEFAULT_WAVELENGTH_SWEEP_STABILIZATION_MS, // Use pre-set value
     ).map_err(|e| format!("Experiment failed: {}", e))
 }
 
@@ -453,7 +458,7 @@ fn run_wavelength_sweep_osa(
         return Err(format!("Too many data points: {}. Maximum allowed is 9.", num_points));
     }
     
-    // Run experiment
+    // Run experiment with pre-set stabilization time
     let n77 = state.devices.n77.as_mut().unwrap();
     let osa = state.devices.osa.as_mut().unwrap();
     
@@ -463,7 +468,7 @@ fn run_wavelength_sweep_osa(
         params.start_nm,
         params.stop_nm,
         params.step_nm,
-        params.stabilization_time_ms,
+        DEFAULT_WAVELENGTH_SWEEP_STABILIZATION_MS, // Use pre-set value
     ).map_err(|e| format!("Experiment failed: {}", e))
 }
 
@@ -496,7 +501,7 @@ async fn run_experiment_handler(
             match serde_json::from_value::<CurrentSweepParams>(params_json) {
                 Ok(params) => {
                     run_current_sweep(&mut state_guard, params).map(|_| {
-                        "current_sweep_results.csv and trace_data/".to_string()
+                        "current_sweep_results.csv and current_sweep_trace_data/".to_string()
                     })
                 },
                 Err(err) => Err(format!("Invalid parameters: {}", err)),
@@ -526,7 +531,7 @@ async fn run_experiment_handler(
             match serde_json::from_value::<WavelengthSweepParams>(params_json) {
                 Ok(params) => {
                     run_wavelength_sweep_osa(&mut state_guard, params).map(|_| {
-                        "wavelength_sweep_trace_results.csv and trace_data/".to_string()
+                        "wavelength_sweep_trace_results.csv and wavelength_sweep_trace_data/".to_string()
                     })
                 },
                 Err(err) => Err(format!("Invalid parameters: {}", err)),
@@ -564,6 +569,9 @@ fn serve_frontend() -> impl Filter<Extract = impl Reply, Error = Rejection> + Cl
 pub async fn start_server() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let state = Arc::new(Mutex::new(AppState::new()));
     
+    let static_files = warp::path("icons")
+    .and(warp::fs::dir("frontend/icons"));
+
     // Route for checking device connection
     let check_connection = warp::path!("api" / "check-connection" / String)
         .and(warp::get())
@@ -580,6 +588,7 @@ pub async fn start_server() -> std::result::Result<(), Box<dyn std::error::Error
     
     // Combine routes
     let routes = serve_frontend()
+        .or(static_files)
         .or(check_connection)
         .or(run_experiment)
         .with(with_cors());

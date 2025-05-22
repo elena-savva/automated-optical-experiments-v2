@@ -16,11 +16,14 @@ pub fn run_current_sweep(
     dwell_time_ms: u64,
 ) -> visa_rs::Result<()> {
     // Create a CSV file to save summary results
-    let mut file = File::create("current_sweep_results.csv").unwrap();
+    std::fs::create_dir_all("data").unwrap_or_else(|e| {
+        println!("Warning: Failed to create data directory: {}", e);
+    });
+    let mut file = File::create("data/current_sweep_results.csv").unwrap();
     writeln!(file, "Current (mA),Peak Wavelength (nm),Peak Power (dBm)").unwrap();
     
     // Create a directory to store trace data files
-    let trace_dir = "current_sweep_trace_data";
+    let trace_dir = "data/current_sweep_trace_data";
     create_dir_all(trace_dir).unwrap_or_else(|e| {
         println!("Warning: Failed to create trace data directory: {}", e);
     });

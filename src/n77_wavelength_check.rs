@@ -14,7 +14,10 @@ pub fn run_wavelength_check(
     stabilization_time_ms: u64,
 ) -> visa_rs::Result<()> {
     // Create a CSV file to save results
-    let mut file = File::create("wavelength_check_result.csv").map_err(io_to_vs_err)?;
+    std::fs::create_dir_all("data").unwrap_or_else(|e| {
+        println!("Warning: Failed to create data directory: {}", e);
+    });
+    let mut file = File::create("data/wavelength_check_result.csv").map_err(io_to_vs_err)?;
     writeln!(file, "Wavelength (nm),Power (dBm)").map_err(io_to_vs_err)?;
     
     // Configure the laser for the experiment

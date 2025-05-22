@@ -16,11 +16,14 @@ pub fn run_wavelength_sweep_osa(
     stabilization_time_ms: u64,
 ) -> visa_rs::Result<()> {
     // Create a CSV file to save results
-    let mut file = File::create("wavelength_sweep_trace_results.csv").map_err(io_to_vs_err)?;
+    std::fs::create_dir_all("data").unwrap_or_else(|e| {
+        println!("Warning: Failed to create data directory: {}", e);
+    });
+    let mut file = File::create("data/wavelength_sweep_trace_results.csv").map_err(io_to_vs_err)?;
     writeln!(file, "Laser Wavelength (nm),Peak Wavelength (nm),Peak Power (dBm)").map_err(io_to_vs_err)?;
     
     // Create a directory to store trace data files
-    let trace_dir = "wavelength_sweep_trace_data";
+    let trace_dir = "data/wavelength_sweep_trace_data";
     create_dir_all(trace_dir).unwrap_or_else(|e| {
         println!("Warning: Failed to create trace data directory: {}", e);
     });
