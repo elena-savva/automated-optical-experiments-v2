@@ -2,11 +2,10 @@
 
 This application provides a web-based interface for controlling laboratory experiments with multiple instruments.
 
-## Quick Start for Lab Users
+## Quick Start for Lab Users (Non-Developers)
 
 **Just want to control your lab equipment? No coding required!**
-
-### [📥 Download Latest Release](https://github.com/elena-savva/automated-optical-experiments-v2/releases/tag/v1.0.0)
+**download the pre-built release** from the [Releases page](https://github.com/elena-savva/automated-optical-experiments-v2/releases) instead of building from source.
 
 1. Download `lab-control-system-v1.0.0-windows.zip` 
 2. Extract to any folder
@@ -14,10 +13,6 @@ This application provides a web-based interface for controlling laboratory exper
 4. Open http://localhost:3000 in your browser
 5. Start experimenting! 🔬
 
-
-## For Lab Users (Non-Developers)
-
-If you just want to run the lab equipment, **download the pre-built release** from the [Releases page](https://github.com/elena-savva/automated-optical-experiments-v2/releases) instead of building from source.
 
 ## For Developers
 
