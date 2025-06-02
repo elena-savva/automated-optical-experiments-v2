@@ -1,6 +1,6 @@
-# Laboratory Experiment Control System
+# PNN Lab Software Suite
 
-This application provides a web-based interface for controlling laboratory experiments with multiple instruments.
+**A web-based interface for controlling optical laboratory instruments.**
 
 ## Quick Start for Lab Users
 
@@ -14,13 +14,15 @@ This application provides a web-based interface for controlling laboratory exper
 5. Open http://localhost:3000 in your browser
 6. Start experimenting! 
 
-### Linux Users
+### Developers / Windows / Linux Users
 **Build from source (requires technical setup):**
 
 1. Go to the [Releases page](https://github.com/elena-savva/automated-optical-experiments-v2/releases)
-2. Download `Source code (tar.gz)`
-3. Extract: `tar -xzf automated-optical-experiments-v2-1.0.0.tar.gz`
-4. Install dependencies: `sudo apt install libvisa-dev python3-pyvisa libusb-1.0-0-dev pkg-config libssl-dev`
+2. Download `Source code (tar.gz)` or `Source code (zip)`
+3. Extract the files
+4. Install dependencies:
+   - **Windows**: Install VISA drivers and GPIB drivers (NI-VISA and NI-488.2 recommended)
+   - **Linux**: `sudo apt install libvisa-dev python3-pyvisa libusb-1.0-0-dev pkg-config libssl-dev`
 5. Install Rust: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh && source ~/.cargo/env`
 6. Build: `cd automated-optical-experiments-v2-1.0.0 && cargo build --release`
 7. Run: `./target/release/automating_experiments`
@@ -32,28 +34,31 @@ This application provides a web-based interface for controlling laboratory exper
 
 ## Supported Instruments
 
-- **CLD1015** Laser Diode (USB connection)
-- **N7714A** Tunable Laser (GPIB address 21)
-- **MPM210-H** Power Meter (GPIB address 16) 
-- **HP-70952B** Optical Spectrum Analyzer (GPIB address 23)
+- **CLD1015 Laser Diode** (USB connection)
+- **N7714A Tunable Laser** (GPIB address 21)
+- **MPM210-H Power Meter** (GPIB address 16) 
+- **HP-70952B Optical Spectrum Analyzer** (GPIB address 23)
 
 ## Available Experiments
 
-- **Current Sweep** (CLD1015 + OSA) - Characterize laser output vs current
-- **Wavelength Check** (N77 + Power Meter) - Single wavelength measurement
-- **Wavelength Sweep** (N77 + Power Meter) - Power vs wavelength scan
-- **Wavelength Sweep with OSA** (N77 + OSA) - Full spectral analysis
+- **Current Sweep** (CLD1015 Laser Diode + HP-70952B Optical Spectrum Analyzer) - Characterize laser output vs current
+- **Wavelength Check** (N7714A Tunable Laser + MPM210-H Power Meter) - Single wavelength measurement
+- **Wavelength Sweep** (N7714A Tunable Laser + MPM210-H Power Meter) - Power vs wavelength scan
+- **Wavelength Sweep with OSA** (N7714A Tunable Laser + HP-70952B Optical Spectrum Analyzer) - Full spectral analysis
 
 ## System Requirements
 
 ### Windows
-- Windows 10/11
-- VISA drivers (NI-VISA or equivalent)
-- Instruments connected via USB/GPIB
+- Windows 10/11 (64-bit)
+- VISA drivers (NI-VISA recommended or equivalent)
+- GPIB drivers (NI-488.2 recommended or equivalent)
+- Modern web browser
+- Laboratory instruments connected via USB/GPIB
 
 ### Linux  
 - Ubuntu 20.04+ (recommended) or Debian 10+
 - VISA development libraries
+- Linux GPIB package
 - sudo access for installation
 - Instruments connected via USB/GPIB
 
@@ -64,6 +69,7 @@ This application provides a web-based interface for controlling laboratory exper
 ### Prerequisites
 - Rust and Cargo installed
 - VISA drivers for your operating system
+- GPIB drivers for GPIB-connected instruments
 - Laboratory instruments connected
 
 ### Building from Source
@@ -75,7 +81,7 @@ This application provides a web-based interface for controlling laboratory exper
    ```
 
 2. Install dependencies:
-   - **Windows**: Install VISA drivers from National Instruments
+   - **Windows**: Install VISA and GPIB drivers from National Instruments
    - **Linux**: `sudo apt install libvisa-dev python3-pyvisa libusb-1.0-0-dev pkg-config libssl-dev`
 
 3. Build and run:
@@ -129,6 +135,20 @@ This creates a `lab-control-deployment/` folder with everything needed for distr
 
 **Note:** Wavelength sweeps limited to 9 data points maximum.
 
+## Data Output
+
+All results saved to `data/` folder:
+- **Summary files**: `*.csv` with key measurements
+- **Trace data**: `*_trace_data/` folders with detailed spectral information
+
+## Safety Features
+
+- **Parameter validation** with real-time feedback
+- **Safe operating ranges** enforced for all instruments
+- **Error handling** with detailed diagnostic messages
+- **Automatic instrument shutdown** after experiments
+- **Connection verification** before experiment start
+
 ## Project Structure
 
 ```
@@ -152,7 +172,7 @@ data/                        # Generated experiment results
 ## Troubleshooting
 
 ### Common Issues
-- **Instruments won't connect**: Check VISA drivers and instrument power/connections
+- **Instruments won't connect**: Check VISA and GPIB drivers and instrument power/connections
 - **Web interface won't load**: Ensure no other software is using port 3000
 - **Permission errors (Linux)**: Add user to dialout group: `sudo usermod -a -G dialout $USER`
 
@@ -164,3 +184,7 @@ data/                        # Generated experiment results
 ## License
 
 MIT
+
+---
+
+**Developed by Elena Savva for PNN Group, Department of Electrical Engineering, Eindhoven University of Technology**
