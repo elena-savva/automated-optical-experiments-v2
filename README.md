@@ -2,108 +2,165 @@
 
 This application provides a web-based interface for controlling laboratory experiments with multiple instruments.
 
-## Quick Start for Lab Users (Non-Developers)
+## Quick Start for Lab Users
 
+### Windows Users (Recommended)
 **Just want to control your lab equipment? No coding required!**
 
-Then **download the pre-built release** from the [Releases page](https://github.com/elena-savva/automated-optical-experiments-v2/releases) instead of building from source.
+1. Go to the [Releases page](https://github.com/elena-savva/automated-optical-experiments-v2/releases)
+2. Download `lab-control-system-v1.0.0-windows.zip` 
+3. Extract to any folder on your lab computer
+4. Double-click `run_lab_control.bat`
+5. Open http://localhost:3000 in your browser
+6. Start experimenting! 
 
-1. Download `lab-control-system-v1.0.0-windows.zip` 
-2. Extract to any folder
-3. Run `run_lab_control.bat`
-4. Open http://localhost:3000 in your browser
-5. Start experimenting! 🔬
+### Linux Users
+**Build from source (requires technical setup):**
+
+1. Go to the [Releases page](https://github.com/elena-savva/automated-optical-experiments-v2/releases)
+2. Download `Source code (tar.gz)`
+3. Extract: `tar -xzf automated-optical-experiments-v2-1.0.0.tar.gz`
+4. Install dependencies: `sudo apt install libvisa-dev python3-pyvisa libusb-1.0-0-dev pkg-config libssl-dev`
+5. Install Rust: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh && source ~/.cargo/env`
+6. Build: `cd automated-optical-experiments-v2-1.0.0 && cargo build --release`
+7. Run: `./target/release/automating_experiments`
+8. Open http://localhost:3000 in your browser
+
+**Note:** Tested on Ubuntu 20.04+. Other distributions may require additional setup.
+
+---
+
+## Supported Instruments
+
+- **CLD1015** Laser Diode (USB connection)
+- **N7714A** Tunable Laser (GPIB address 21)
+- **MPM210-H** Power Meter (GPIB address 16) 
+- **HP-70952B** Optical Spectrum Analyzer (GPIB address 23)
+
+## Available Experiments
+
+- **Current Sweep** (CLD1015 + OSA) - Characterize laser output vs current
+- **Wavelength Check** (N77 + Power Meter) - Single wavelength measurement
+- **Wavelength Sweep** (N77 + Power Meter) - Power vs wavelength scan
+- **Wavelength Sweep with OSA** (N77 + OSA) - Full spectral analysis
+
+## System Requirements
+
+### Windows
+- Windows 10/11
+- VISA drivers (NI-VISA or equivalent)
+- Instruments connected via USB/GPIB
+
+### Linux  
+- Ubuntu 20.04+ (recommended) or Debian 10+
+- VISA development libraries
+- sudo access for installation
+- Instruments connected via USB/GPIB
+
+---
 
 ## For Developers
 
 ### Prerequisites
 - Rust and Cargo installed
 - VISA drivers for your operating system
-- Laboratory instruments (CLD1015, N7714A, MPM210-H, HP-70952B)
+- Laboratory instruments connected
 
-### Building and Running
+### Building from Source
 
 1. Clone the repository:
    ```bash
    git clone https://github.com/elena-savva/automated-optical-experiments-v2.git
-   cd automating_experiments
+   cd automated-optical-experiments-v2
    ```
 
-3. Build and run the application:
-   ```
-   cargo build
+2. Install dependencies:
+   - **Windows**: Install VISA drivers from National Instruments
+   - **Linux**: `sudo apt install libvisa-dev python3-pyvisa libusb-1.0-0-dev pkg-config libssl-dev`
+
+3. Build and run:
+   ```bash
+   cargo build --release
    cargo run
    ```
 
-4. Open the web interface in your browser:
-   ```
-   http://localhost:3000
-   ```
-   
-## Features
+4. Open the web interface: http://localhost:3000
 
-- Connect to and monitor 4 laboratory devices:
-  - CLD1015 Laser Diode
-  - N7714A Tunable Laser
-  - MPM210-H Power Meter
-  - HP-70952B Optical Spectrum Analyzer (OSA)
-- Run 4 different types of experiments:
-  - Current Sweep (CLD1015 + OSA)
-  - Wavelength Check (N77 + Power Meter)
-  - Wavelength Sweep (N77 + Power Meter)
-  - Wavelength Sweep with OSA (N77 + OSA)
-- Set experiment parameters with validation
-- View experiment results in CSV files
+### Creating Windows Deployment Package
+
+```bash
+# Build release version
+cargo build --release
+
+# Create deployment package
+.\create_deployment.bat
+```
+
+This creates a `lab-control-deployment/` folder with everything needed for distribution.
+
+---
 
 ## Using the Application
 
-1. Check device connections:
-   - Click the "Check Connection" button for each device you want to use
-   - The status indicator will turn green if connected, red if disconnected
+1. **Connect Instruments**: Ensure all laboratory instruments are powered on and connected
 
-2. Select an experiment from the dropdown
+2. **Start the Server**: 
+   - Windows: Run `run_lab_control.bat`
+   - Linux: Run `./target/release/automating_experiments`
 
-3. Enter experiment parameters:
-   - Parameters are automatically validated
-   - For wavelength sweeps, the maximum number of readings is limited to 9
+3. **Open Web Interface**: Navigate to http://localhost:3000
 
-4. Click "Run Experiment" to start the experiment
-   - You need to have the required devices connected for the selected experiment
-   - After completion, a notification will show where the results are stored
+4. **Check Device Connections**: Click "Check Connection" for each instrument
 
-5. Find experiment results in the generated CSV files and trace data directory
+5. **Run Experiments**:
+   - Select experiment type from dropdown
+   - Configure parameters (automatically validated)
+   - Click "Run Experiment"
+   - Results are saved as CSV files in the `data/` folder
 
-## Experiment Types and Parameters
+## Experiment Parameters
 
-- **Current Sweep** (CLD1015 + OSA)
-  - Start Current (0-100 mA)
-  - Stop Current (0-100 mA)
-  - Step Size (mA)
-  - Dwell Time (ms)
+| Experiment | Device Combo | Parameters |
+|------------|--------------|------------|
+| **Current Sweep** | CLD1015 + OSA | Start/Stop Current (0-100 mA), Step Size |
+| **Wavelength Check** | N77 + Power Meter | Wavelength (1527.60-1570.01 nm) |
+| **Wavelength Sweep** | N77 + Power Meter | Start/Stop Wavelength, Step Size |
+| **Wavelength Sweep + OSA** | N77 + OSA | Start/Stop Wavelength, Step Size |
 
-- **Wavelength Check** (N77 + Power Meter)
-  - Wavelength (1527.60-1570.01 nm)
-  - Stabilization Time (ms)
-
-- **Wavelength Sweep** (N77 + Power Meter)
-  - Start Wavelength (1527.60-1570.01 nm)
-  - Stop Wavelength (1527.60-1570.01 nm)
-  - Step Size (nm)
-  - Stabilization Time (ms)
-
-- **Wavelength Sweep with OSA** (N77 + OSA)
-  - Start Wavelength (1527.60-1570.01 nm)
-  - Stop Wavelength (1527.60-1570.01 nm)
-  - Step Size (nm)
-  - Stabilization Time (ms)
+**Note:** Wavelength sweeps limited to 9 data points maximum.
 
 ## Project Structure
 
-- `src/main.rs` - Main entry point
-- `src/web_server.rs` - Web server implementation
-- `src/cld1015_osa.rs` - Current sweep experiment
-- `src/n77_wavelength_check.rs` - Wavelength check experiment
-- `src/n77_wavelength_sweep.rs` - Wavelength sweep experiment
-- `src/n77_osa.rs` - Wavelength sweep with OSA experiment
-- `src/visa_error.rs` - Error handling for VISA operations
-- `frontend/index.html` - Web interface
+```
+src/
+├── main.rs                    # Main entry point & web server
+├── web_server.rs             # Web API and frontend serving
+├── cld1015_osa.rs           # Current sweep experiments
+├── n77_wavelength_check.rs  # Single wavelength measurements
+├── n77_wavelength_sweep.rs  # Wavelength sweep experiments  
+├── n77_osa.rs               # Wavelength sweep with OSA
+└── visa_error.rs            # VISA error handling
+
+frontend/
+└── index.html               # Web interface
+
+data/                        # Generated experiment results
+├── *.csv                   # Summary data
+└── *_trace_data/          # Detailed trace files
+```
+
+## Troubleshooting
+
+### Common Issues
+- **Instruments won't connect**: Check VISA drivers and instrument power/connections
+- **Web interface won't load**: Ensure no other software is using port 3000
+- **Permission errors (Linux)**: Add user to dialout group: `sudo usermod -a -G dialout $USER`
+
+### Getting Help
+- Check the instrument address settings in the source code
+- Verify VISA installation: try connecting with other VISA software
+- For build issues: ensure all development dependencies are installed
+
+## License
+
+[Add your license information here]
