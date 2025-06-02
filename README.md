@@ -163,4 +163,4 @@ data/                        # Generated experiment results
 
 ## License
 
-[Add your license information here]
+MIT
