@@ -26,7 +26,7 @@ This application provides a web-based interface for controlling laboratory exper
 7. Run: `./target/release/automating_experiments`
 8. Open http://localhost:3000 in your browser
 
-**Note:** Tested on Ubuntu 20.04+. Other distributions may require additional setup.
+**Note:** Linux support is experimental.
 
 ---
 
