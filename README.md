@@ -133,8 +133,8 @@ This creates a `lab-control-deployment/` folder with everything needed for distr
 
 ```
 src/
-├── main.rs                    # Main entry point & web server
-├── web_server.rs             # Web API and frontend serving
+├── main.rs                  # Main entry point & web server
+├── web_server.rs            # Web API and frontend serving
 ├── cld1015_osa.rs           # Current sweep experiments
 ├── n77_wavelength_check.rs  # Single wavelength measurements
 ├── n77_wavelength_sweep.rs  # Wavelength sweep experiments  
@@ -145,8 +145,8 @@ frontend/
 └── index.html               # Web interface
 
 data/                        # Generated experiment results
-├── *.csv                   # Summary data
-└── *_trace_data/          # Detailed trace files
+├── *.csv                    # Summary data
+└── *_trace_data/            # Detailed trace files
 ```
 
 ## Troubleshooting
