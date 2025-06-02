@@ -84,12 +84,11 @@ echo 5. Click "Run Experiment" to start
 echo.
 echo Results are saved in the "data/" folder as CSV files.
 echo.
-echo For technical support, contact: [Your contact information]
 ) > "lab-control-deployment\README.txt"
 
 echo.
-echo ✓ Deployment package created successfully!
-echo ✓ Location: lab-control-deployment\
+echo Deployment package created successfully!
+echo Location: lab-control-deployment\
 echo.
 echo You can now:
 echo   1. Test it by running: lab-control-deployment\run_lab_control.bat
