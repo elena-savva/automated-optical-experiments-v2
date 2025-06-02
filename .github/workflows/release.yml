@@ -3,155 +3,42 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*'  # Triggers when you push a tag like v1.0.0
+      - 'v*'
 
 jobs:
-  build:
-    name: Build for ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            executable-suffix: .exe
-            archive-name: lab-control-system-windows.zip
-            
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            executable-suffix: ''
-            archive-name: lab-control-system-linux.tar.gz
-
+  build-windows:
+    runs-on: windows-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Install Rust
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-      with:
-        target: ${{ matrix.target }}
-
-    - name: Install Linux dependencies
-      if: matrix.os == 'ubuntu-latest'
+    - uses: actions/checkout@v4
+    - uses: actions-rust-lang/setup-rust-toolchain@v1
+    
+    - name: Build Windows
+      run: cargo build --release
+    
+    - name: Run Windows deployment script
+      run: .\create_deployment.bat
+      
+    - name: Create Windows archive
+      run: powershell Compress-Archive -Path lab-control-deployment -DestinationPath lab-control-system-windows.zip
+    
+    - name: Create Linux source package
       run: |
-        sudo apt-get update
-        sudo apt-get install -y libssl-dev pkg-config
-
-    - name: Build release
-      run: cargo build --release --target ${{ matrix.target }}
-
-    - name: Create deployment package (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        mkdir lab-control-deployment
-        mkdir lab-control-deployment/frontend
-        mkdir lab-control-deployment/frontend/icons
-        
-        # Copy executable
-        copy "target/${{ matrix.target }}/release/automating_experiments${{ matrix.executable-suffix }}" "lab-control-deployment/"
-        
-        # Copy frontend files
-        copy "frontend/index.html" "lab-control-deployment/frontend/"
-        copy "frontend/icons/*" "lab-control-deployment/frontend/icons/" 2>nul || echo "No icons found"
-        
-        # Create batch file
-        echo '@echo off' > lab-control-deployment/run_lab_control.bat
-        echo 'echo =====================================' >> lab-control-deployment/run_lab_control.bat
-        echo 'echo  Laboratory Experiment Control System' >> lab-control-deployment/run_lab_control.bat
-        echo 'echo =====================================' >> lab-control-deployment/run_lab_control.bat
-        echo 'echo.' >> lab-control-deployment/run_lab_control.bat
-        echo 'if not exist "data" mkdir data' >> lab-control-deployment/run_lab_control.bat
-        echo 'echo Starting server... Web interface: http://localhost:3000' >> lab-control-deployment/run_lab_control.bat
-        echo 'echo Press Ctrl+C to stop the server' >> lab-control-deployment/run_lab_control.bat
-        echo 'echo.' >> lab-control-deployment/run_lab_control.bat
-        echo 'automating_experiments.exe' >> lab-control-deployment/run_lab_control.bat
-        echo 'pause' >> lab-control-deployment/run_lab_control.bat
-        
-        # Create README
-        echo 'Laboratory Experiment Control System - Windows' > lab-control-deployment/README.txt
-        echo '=============================================' >> lab-control-deployment/README.txt
-        echo '' >> lab-control-deployment/README.txt
-        echo 'QUICK START:' >> lab-control-deployment/README.txt
-        echo '1. Double-click run_lab_control.bat' >> lab-control-deployment/README.txt
-        echo '2. Open http://localhost:3000 in your browser' >> lab-control-deployment/README.txt
-        echo '3. Connect instruments and run experiments' >> lab-control-deployment/README.txt
-
-    - name: Create deployment package (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        mkdir -p lab-control-deployment/frontend/icons
-        
-        # Copy executable
-        cp "target/${{ matrix.target }}/release/automating_experiments" "lab-control-deployment/"
-        chmod +x "lab-control-deployment/automating_experiments"
-        
-        # Copy frontend files
-        cp "frontend/index.html" "lab-control-deployment/frontend/"
-        cp frontend/icons/* "lab-control-deployment/frontend/icons/" 2>/dev/null || echo "No icons found"
-        
-        # Create shell script
-        cat > lab-control-deployment/run_lab_control.sh << 'EOF'
-        #!/bin/bash
-        echo "====================================="
-        echo " Laboratory Experiment Control System"
-        echo "====================================="
-        echo
-        
-        # Create data directory
-        mkdir -p data
-        
-        echo "Starting server... Web interface: http://localhost:3000"
-        echo "Press Ctrl+C to stop the server"
-        echo
-        
-        # Check for VISA drivers
-        if ! ldconfig -p | grep -q libvisa; then
-            echo "WARNING: VISA drivers may not be installed."
-            echo "Install with: sudo apt install libvisa-dev python3-pyvisa"
-            echo
-        fi
-        
-        ./automating_experiments
-        EOF
-        
-        chmod +x lab-control-deployment/run_lab_control.sh
-        
-        # Create README
-        cat > lab-control-deployment/README.txt << 'EOF'
-        Laboratory Experiment Control System - Linux
-        =============================================
-        
-        SYSTEM REQUIREMENTS:
-        - Linux (Ubuntu 20.04+, CentOS 8+, or equivalent)
-        - VISA drivers: sudo apt install libvisa-dev python3-pyvisa
-        
-        QUICK START:
-        1. Extract this archive
-        2. Run: ./run_lab_control.sh
-        3. Open http://localhost:3000 in your browser
-        4. Connect instruments and run experiments
-        
-        TROUBLESHOOTING:
-        - If permission denied: chmod +x run_lab_control.sh
-        - Install VISA drivers if instruments don't connect
-        - Press Ctrl+C to stop the server
-        EOF
-
-    - name: Create archive (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        powershell Compress-Archive -Path lab-control-deployment -DestinationPath ${{ matrix.archive-name }}
-
-    - name: Create archive (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        tar -czf ${{ matrix.archive-name }} lab-control-deployment
-
-    - name: Upload to release
+        mkdir lab-control-linux
+        xcopy "src" "lab-control-linux\src\" /E /I
+        copy "Cargo.toml" "lab-control-linux\"
+        copy "Cargo.lock" "lab-control-linux\"
+        xcopy "frontend" "lab-control-linux\frontend\" /E /I
+        copy "README.md" "lab-control-linux\"
+        copy "LINUX_README.md" "lab-control-linux\"
+        copy "linux_setup.sh" "lab-control-linux\"
+        copy "run_lab_control.sh" "lab-control-linux\"
+        powershell Compress-Archive -Path lab-control-linux -DestinationPath lab-control-system-linux.zip
+    
+    - name: Upload both packages
       uses: softprops/action-gh-release@v1
       with:
-        files: ${{ matrix.archive-name }}
-        draft: false
-        prerelease: false
+        files: |
+          lab-control-system-windows.zip
+          lab-control-system-linux.zip
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }
