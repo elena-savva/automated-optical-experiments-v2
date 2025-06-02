@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Experimental Control Interface</title>
+    <title>PNN Lab Software Suite</title>
     <link rel="icon" type="image/x-icon" href="icons/favicon.ico">
     <link rel="shortcut icon" type="image/x-icon" href="icons/favicon.ico">
     <style>
@@ -13,6 +13,12 @@
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .main-content {
+            flex: 1;
         }
         .container {
             background-color: white;
@@ -145,162 +151,187 @@
         }
         .validation-message {
             color: #F44336;
-            font-size: 0.8em;
+            font-size: 0.9em;
             margin-top: 4px;
             min-height: 1em;
+        }
+        .footer {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-top: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        .footer a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <h1>Laboratory Experiment Control</h1>
-    
-    <div class="container">
-        <h2>Device Status</h2>
-        <div class="devices">
-            <div class="device" id="cld1015-device">
-                <div class="device-header">
-                    <div class="device-title">
-                        <img src="icons/cld1015.png" alt="CLD1015 Icon" class="device-icon">
-                        <h3><span class="device-status unknown"></span> CLD1015 Laser Diode</h3>
+    <div class="main-content">
+        <h1>PNN Lab Software Suite</h1>
+        
+        <div class="container">
+            <h2>Device Status</h2>
+            <div class="devices">
+                <div class="device" id="cld1015-device">
+                    <div class="device-header">
+                        <div class="device-title">
+                            <img src="icons/cld1015.png" alt="CLD1015 Icon" class="device-icon">
+                            <h3><span class="device-status unknown"></span> CLD1015 Laser Diode</h3>
+                        </div>
+                        <button onclick="checkDeviceConnection('cld1015')">Check Connection</button>
                     </div>
-                    <button onclick="checkDeviceConnection('cld1015')">Check Connection</button>
+                    <div id="cld1015-info"></div>
                 </div>
-                <div id="cld1015-info"></div>
-            </div>
-            
-            <div class="device" id="n77-device">
-                <div class="device-header">
-                    <div class="device-title">
-                        <img src="icons/N7714A.png" alt="N77 Icon" class="device-icon">
-                        <h3><span class="device-status unknown"></span> N7714A Tunable Laser</h3>
+                
+                <div class="device" id="n77-device">
+                    <div class="device-header">
+                        <div class="device-title">
+                            <img src="icons/N7714A.png" alt="N77 Icon" class="device-icon">
+                            <h3><span class="device-status unknown"></span> N7714A Tunable Laser</h3>
+                        </div>
+                        <button onclick="checkDeviceConnection('n77')">Check Connection</button>
                     </div>
-                    <button onclick="checkDeviceConnection('n77')">Check Connection</button>
+                    <div id="n77-info"></div>
                 </div>
-                <div id="n77-info"></div>
-            </div>
-            
-            <div class="device" id="power-meter-device">
-                <div class="device-header">
-                    <div class="device-title">
-                        <img src="icons/MPM-210H.png" alt="Power Meter Icon" class="device-icon">
-                        <h3><span class="device-status unknown"></span> MPM210-H Power Meter</h3>
+                
+                <div class="device" id="power-meter-device">
+                    <div class="device-header">
+                        <div class="device-title">
+                            <img src="icons/MPM-210H.png" alt="Power Meter Icon" class="device-icon">
+                            <h3><span class="device-status unknown"></span> MPM210-H Power Meter</h3>
+                        </div>
+                        <button onclick="checkDeviceConnection('power_meter')">Check Connection</button>
                     </div>
-                    <button onclick="checkDeviceConnection('power_meter')">Check Connection</button>
+                    <div id="power-meter-info"></div>
                 </div>
-                <div id="power-meter-info"></div>
-            </div>
-            
-            <div class="device" id="osa-device">
-                <div class="device-header">
-                    <div class="device-title">
-                        <img src="icons/hp.png" alt="OSA Icon" class="device-icon">
-                        <h3><span class="device-status unknown"></span> HP-70952B OSA</h3>
+                
+                <div class="device" id="osa-device">
+                    <div class="device-header">
+                        <div class="device-title">
+                            <img src="icons/hp.png" alt="OSA Icon" class="device-icon">
+                            <h3><span class="device-status unknown"></span> HP-70952B OSA</h3>
+                        </div>
+                        <button onclick="checkDeviceConnection('osa')">Check Connection</button>
                     </div>
-                    <button onclick="checkDeviceConnection('osa')">Check Connection</button>
+                    <div id="osa-info"></div>
                 </div>
-                <div id="osa-info"></div>
             </div>
-        </div>
-    </div>
-    
-    <div class="container">
-        <h2>Run Experiment</h2>
-        <div id="notification" class="notification"></div>
-
-        <div class="form-group">
-            <label for="experiment-select">Select Experiment:</label>
-            <select id="experiment-select" onchange="updateParameterForm()">
-                <option value="">-- Select an experiment --</option>
-                <option value="current_sweep">Current Sweep (CLD1015 + OSA)</option>
-                <option value="wavelength_check">Wavelength Check (N77 + Power Meter)</option>
-                <option value="wavelength_sweep">Wavelength Sweep (N77 + Power Meter)</option>
-                <option value="wavelength_sweep_osa">Wavelength Sweep with OSA (N77 + OSA)</option>
-            </select>
         </div>
         
-        <div id="parameter-form" style="display: none; margin-top: 20px;">
-            <!-- Current Sweep Parameters -->
-            <div id="current-sweep-params" style="display: none;">
-                <h3>Current Sweep Parameters</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="start-ma">Start Current (mA):</label>
-                        <input type="number" id="start-ma" min="0" max="100" step="0.1" value="0" oninput="validateParameters()">
-                        <div class="validation-message" id="start-ma-validation"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="stop-ma">Stop Current (mA):</label>
-                        <input type="number" id="stop-ma" min="0" max="100" step="0.1" value="100" oninput="validateParameters()">
-                        <div class="validation-message" id="stop-ma-validation"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="step-ma">Step Size (mA):</label>
-                        <input type="number" id="step-ma" min="0.1" step="0.1" value="1" oninput="validateParameters()">
-                        <div class="validation-message" id="step-ma-validation"></div>
-                    </div>                    
-                </div>
+        <div class="container">
+            <h2>Run Experiment</h2>
+            <div id="notification" class="notification"></div>
+
+            <div class="form-group">
+                <label for="experiment-select">Select Experiment:</label>
+                <select id="experiment-select" onchange="updateParameterForm()">
+                    <option value="">-- Select an experiment --</option>
+                    <option value="current_sweep">Current Sweep (CLD1015 + OSA)</option>
+                    <option value="wavelength_check">Wavelength Check (N77 + Power Meter)</option>
+                    <option value="wavelength_sweep">Wavelength Sweep (N77 + Power Meter)</option>
+                    <option value="wavelength_sweep_osa">Wavelength Sweep with OSA (N77 + OSA)</option>
+                </select>
             </div>
             
-            <!-- Wavelength Check Parameters -->
-            <div id="wavelength-check-params" style="display: none;">
-                <h3>Wavelength Check Parameters</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="wavelength">Wavelength (nm):</label>
-                        <input type="number" id="wavelength" min="1527.60" max="1570.01" step="0.01" value="1550.00" oninput="validateParameters()">
-                        <div class="validation-message" id="wavelength-validation"></div>
+            <div id="parameter-form" style="display: none; margin-top: 20px;">
+                <!-- Current Sweep Parameters -->
+                <div id="current-sweep-params" style="display: none;">
+                    <h3>Current Sweep Parameters</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="start-ma">Start Current (mA):</label>
+                            <input type="number" id="start-ma" min="0" max="100" step="0.1" value="0" oninput="validateParameters()">
+                            <div class="validation-message" id="start-ma-validation"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="stop-ma">Stop Current (mA):</label>
+                            <input type="number" id="stop-ma" min="0" max="100" step="0.1" value="100" oninput="validateParameters()">
+                            <div class="validation-message" id="stop-ma-validation"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="step-ma">Step Size (mA):</label>
+                            <input type="number" id="step-ma" min="0.1" step="0.1" value="1" oninput="validateParameters()">
+                            <div class="validation-message" id="step-ma-validation"></div>
+                        </div>                    
                     </div>
                 </div>
-            </div>
-            
-            <!-- Wavelength Sweep Parameters -->
-            <div id="wavelength-sweep-params" style="display: none;">
-                <h3>Wavelength Sweep Parameters</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="start-nm">Start Wavelength (nm):</label>
-                        <input type="number" id="start-nm" min="1527.60" max="1570.01" step="0.01" value="1530.00" oninput="validateParameters()">
-                        <div class="validation-message" id="start-nm-validation"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="stop-nm">Stop Wavelength (nm):</label>
-                        <input type="number" id="stop-nm" min="1527.60" max="1570.01" step="0.01" value="1570.00" oninput="validateParameters()">
-                        <div class="validation-message" id="stop-nm-validation"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="step-nm">Step Size (nm):</label>
-                        <input type="number" id="step-nm" min="0.01" step="0.01" value="5.00" oninput="validateParameters()">
-                        <div class="validation-message" id="step-nm-validation"></div>
+                
+                <!-- Wavelength Check Parameters -->
+                <div id="wavelength-check-params" style="display: none;">
+                    <h3>Wavelength Check Parameters</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="wavelength">Wavelength (nm):</label>
+                            <input type="number" id="wavelength" min="1527.60" max="1570.01" step="0.01" value="1550.00" oninput="validateParameters()">
+                            <div class="validation-message" id="wavelength-validation"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="validation-message" id="number-of-points-validation"></div>
-            </div>
-            
-            <!-- Wavelength Sweep OSA Parameters -->
-            <div id="wavelength-sweep-osa-params" style="display: none;">
-                <h3>Wavelength Sweep with OSA Parameters</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="start-nm-osa">Start Wavelength (nm):</label>
-                        <input type="number" id="start-nm-osa" min="1527.60" max="1570.01" step="0.01" value="1530.00" oninput="validateParameters()">
-                        <div class="validation-message" id="start-nm-osa-validation"></div>
+                
+                <!-- Wavelength Sweep Parameters -->
+                <div id="wavelength-sweep-params" style="display: none;">
+                    <h3>Wavelength Sweep Parameters</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="start-nm">Start Wavelength (nm):</label>
+                            <input type="number" id="start-nm" min="1527.60" max="1570.01" step="0.01" value="1530.00" oninput="validateParameters()">
+                            <div class="validation-message" id="start-nm-validation"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="stop-nm">Stop Wavelength (nm):</label>
+                            <input type="number" id="stop-nm" min="1527.60" max="1570.01" step="0.01" value="1570.00" oninput="validateParameters()">
+                            <div class="validation-message" id="stop-nm-validation"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="step-nm">Step Size (nm):</label>
+                            <input type="number" id="step-nm" min="0.01" step="0.01" value="5.00" oninput="validateParameters()">
+                            <div class="validation-message" id="step-nm-validation"></div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="stop-nm-osa">Stop Wavelength (nm):</label>
-                        <input type="number" id="stop-nm-osa" min="1527.60" max="1570.01" step="0.01" value="1570.00" oninput="validateParameters()">
-                        <div class="validation-message" id="stop-nm-osa-validation"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="step-nm-osa">Step Size (nm):</label>
-                        <input type="number" id="step-nm-osa" min="0.01" step="0.01" value="5.00" oninput="validateParameters()">
-                        <div class="validation-message" id="step-nm-osa-validation"></div>
-                    </div>
+                    <div class="validation-message" id="number-of-points-validation"></div>
                 </div>
-                <div class="validation-message" id="number-of-points-osa-validation"></div>
+                
+                <!-- Wavelength Sweep OSA Parameters -->
+                <div id="wavelength-sweep-osa-params" style="display: none;">
+                    <h3>Wavelength Sweep with OSA Parameters</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="start-nm-osa">Start Wavelength (nm):</label>
+                            <input type="number" id="start-nm-osa" min="1527.60" max="1570.01" step="0.01" value="1530.00" oninput="validateParameters()">
+                            <div class="validation-message" id="start-nm-osa-validation"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="stop-nm-osa">Stop Wavelength (nm):</label>
+                            <input type="number" id="stop-nm-osa" min="1527.60" max="1570.01" step="0.01" value="1570.00" oninput="validateParameters()">
+                            <div class="validation-message" id="stop-nm-osa-validation"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="step-nm-osa">Step Size (nm):</label>
+                            <input type="number" id="step-nm-osa" min="0.01" step="0.01" value="5.00" oninput="validateParameters()">
+                            <div class="validation-message" id="step-nm-osa-validation"></div>
+                        </div>
+                    </div>
+                    <div class="validation-message" id="number-of-points-osa-validation"></div>
+                </div>
+                <button id="run-experiment" class="run-button" disabled onclick="runExperiment()">Run Experiment</button>
             </div>
-            <button id="run-experiment" class="run-button" disabled onclick="runExperiment()">Run Experiment</button>
         </div>
     </div>
+    
+    <!-- Copyright Footer -->
+    <footer class="footer">
+        <p>© 2025 Elena Savva, PNN group, Department of Electrical Engineering, Eindhoven University of Technology<br></p>
+    </footer>
 
     <script>
         // Device connection status
