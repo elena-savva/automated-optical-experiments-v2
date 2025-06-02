@@ -42,7 +42,7 @@
 - **CLD1015 Laser Diode** (USB connection)
 - **N7714A Tunable Laser** (GPIB address 21) - **Uses Laser 2 output**
 - **MPM210-H Power Meter** (GPIB address 16) - **Uses Module 0, Port 2** 
-- **HP-70952B Optical Spectrum Analyzer** (GPIB address 23)
+- **HP-70952B Optical Spectrum Analyzer (OSA)** (GPIB address 23)
 
 ### Important Hardware Configuration Notes
 - **N7714A**: The software is hardcoded to control **Laser 2**. Ensure your fiber is connected to the **Laser 2 output**.
