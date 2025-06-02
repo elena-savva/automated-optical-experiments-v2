@@ -7,17 +7,15 @@
 ### Windows Users (Recommended)
 **Just want to control your lab equipment? No coding required!**
 
-1. **Connect your instruments** and power them on
-2. **Configure hardware connections**:
-   - Connect fiber to **N7714A Laser 2 output**
-   - Connect optical input to **MPM210-H Port 2** (second from top)
-3. **Install VISA & GPIB drivers** for your system
-4. Go to the [Releases page](https://github.com/elena-savva/automated-optical-experiments-v2/releases)
-5. Download `lab-control-system-v1.0.0-windows.zip` 
-6. Extract to any folder on your lab computer
-7. Double-click `run_lab_control.bat`
-8. Open http://localhost:3000 in your browser
-9. Start experimenting! 
+1. **Connect your instruments** and power them on. Note: for **N7714A use Laser 2**
+   and for **MPM210-H use Port 2** (second from top)
+2. **Install VISA & GPIB drivers** for your system
+3. Go to the [Releases page](https://github.com/elena-savva/automated-optical-experiments-v2/releases)
+4. Download `lab-control-system-v1.0.0-windows.zip` 
+5. Extract to any folder on your lab computer
+6. Double-click `run_lab_control.bat`
+7. Open http://localhost:3000 in your browser
+8. Start experimenting! 
 
 ### Developers / Windows / Linux Users
 **Build from source (requires technical setup):**
