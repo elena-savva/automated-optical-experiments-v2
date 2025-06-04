@@ -1,5 +1,3 @@
-// src/web_server.rs
-
 use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
@@ -83,13 +81,11 @@ struct CurrentSweepParams {
     start_ma: f64,
     stop_ma: f64,
     step_ma: f64,
-    // dwell_time_ms removed - will use pre-set value
 }
 
 #[derive(Deserialize)]
 struct WavelengthCheckParams {
     wavelength: f64,
-    // stabilization_time_ms removed - will use pre-set value
 }
 
 #[derive(Deserialize)]
@@ -97,7 +93,6 @@ struct WavelengthSweepParams {
     start_nm: f64,
     stop_nm: f64,
     step_nm: f64,
-    // stabilization_time_ms removed - will use pre-set value
 }
 
 // Filter to inject state
@@ -370,7 +365,7 @@ fn run_current_sweep(
         params.start_ma,
         params.stop_ma,
         params.step_ma,
-        DEFAULT_DWELL_TIME_MS, // Use pre-set value
+        DEFAULT_DWELL_TIME_MS, 
     ).map_err(|e| format!("Experiment failed: {}", e))
 }
 
@@ -396,7 +391,7 @@ fn run_wavelength_check(
         n77,
         power_meter,
         params.wavelength,
-        DEFAULT_STABILIZATION_TIME_MS, // Use pre-set value
+        DEFAULT_STABILIZATION_TIME_MS, 
     ).map_err(|e| format!("Experiment failed: {}", e))
 }
 
@@ -432,7 +427,7 @@ fn run_wavelength_sweep(
         params.start_nm,
         params.stop_nm,
         params.step_nm,
-        DEFAULT_WAVELENGTH_SWEEP_STABILIZATION_MS, // Use pre-set value
+        DEFAULT_WAVELENGTH_SWEEP_STABILIZATION_MS, 
     ).map_err(|e| format!("Experiment failed: {}", e))
 }
 
@@ -468,7 +463,7 @@ fn run_wavelength_sweep_osa(
         params.start_nm,
         params.stop_nm,
         params.step_nm,
-        DEFAULT_WAVELENGTH_SWEEP_STABILIZATION_MS, // Use pre-set value
+        DEFAULT_WAVELENGTH_SWEEP_STABILIZATION_MS, 
     ).map_err(|e| format!("Experiment failed: {}", e))
 }
 
