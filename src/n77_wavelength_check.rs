@@ -31,7 +31,7 @@ pub fn run_wavelength_check(
     power_meter.write_all(b"AVG 50\n").map_err(io_to_vs_err)?;        // 50ms averaging time
     power_meter.write_all(b"UNIT 0\n").map_err(io_to_vs_err)?;        // dBm units
     
-    // Turn laser ON
+    // Turn laser 2 ON
     laser.write_all(b":SOURce2:POWer:STATe 1\n").map_err(io_to_vs_err)?;
     println!("Laser turned ON");
     
