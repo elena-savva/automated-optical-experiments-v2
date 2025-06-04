@@ -37,7 +37,7 @@ pub fn run_wavelength_sweep(
     power_meter.write_all(b"AVG 50\n").map_err(io_to_vs_err)?;        // 50ms averaging time
     power_meter.write_all(b"UNIT 0\n").map_err(io_to_vs_err)?;        // dBm units
     
-    // Turn laser ON
+    // Turn laser 2 ON
     laser.write_all(b":SOURce2:POWer:STATe 1\n").map_err(io_to_vs_err)?;
     println!("Laser turned ON");
     
@@ -89,7 +89,7 @@ pub fn run_wavelength_sweep(
             )));
         }
         
-        let power = match power_values[1].parse::<f64>() {
+        let power = match power_values[1].parse::<f64>() { // Save power value from the 2nd port (top to bottom)
             Ok(value) => value,
             Err(_) => return Err(io_to_vs_err(io::Error::new(
                 io::ErrorKind::InvalidData,
