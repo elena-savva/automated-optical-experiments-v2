@@ -58,7 +58,7 @@ pub fn run_wavelength_sweep_osa(
     laser.write_all(b":SOURce2:POWer:UNit 0\n").map_err(io_to_vs_err)?;  // Set power unit to dBm
     laser.write_all(b":SOURce2:POWer:LEVel:IMMediate:AMPLitude DEF\n").map_err(io_to_vs_err)?;  // Set power to default value
     
-    // Turn laser ON
+    // Turn laser 2 ON
     laser.write_all(b":SOURce2:POWer:STATe 1\n").map_err(io_to_vs_err)?;
     println!("Laser turned ON");
 
