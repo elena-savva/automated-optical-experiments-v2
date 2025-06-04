@@ -78,7 +78,7 @@ pub fn run_wavelength_check(
         )));
     }
         
-    let power = match power_values[1].parse::<f64>() {
+    let power = match power_values[1].parse::<f64>() { // Save power value from the 2nd port (top to bottom)
         Ok(value) => value,
         Err(_) => return Err(io_to_vs_err(io::Error::new(
             io::ErrorKind::InvalidData,
