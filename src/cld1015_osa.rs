@@ -60,6 +60,9 @@ pub fn run_current_sweep(
     cld1015.write_all(b"OUTPut:STATe 0\n").map_err(io_to_vs_err)?;
     println!("Laser turned OFF");
 
+    // Turn TEC on before laser activation
+    cld1015.write_all(b"OUTPut2:STATe 1\n").map_err(io_to_vs_err)?;
+
     // Wait for initial stabilization
     std::thread::sleep(Duration::from_millis(100));
     
